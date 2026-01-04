@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planner 2026 • Jossandy</title>
+<style>
+:root {
+  --bg: #FFF8F6;
+  --card: #FFFFFF;
+  --primary: #E6B7B0;
+  --border: #F2D6D1;
+  --text: #4A3B3A;
+}
+body.dark {
+  --bg: #1E1A1A;
+  --card: #2A2424;
+  --primary: #C89B94;
+  --border: #3A3030;
+  --text: #F5EDED;
+}
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s;
+  background-image: url('lagarta-borboleta.gif');
+  background-size: cover;
+  background-attachment: fixed;
+}
+header {
+  background: var(--primary);
+  padding: 25px;
+  text-align: center;
+  border-bottom-left-radius: 25px;
+  border-bottom-right-radius: 25px;
+}
+.top-actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 10px;
+}
+button {
+  border: none;
+  border-radius: 20px;
+  padding: 8px 14px;
+  cursor: pointer;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.85em;
+}
+.container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+}
+.month {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 25px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+.month-column {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.month h2 {
+  margin-top: 0;
+  color: var(--primary);
+  text-align: center;
+}
+textarea {
+  width: 100%;
+  min-height: 60px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  padding: 10px;
+  resize: vertical;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text);
+}
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+</style>
+</head>
+<body>
+<header>
+<h1>🌷 Planner 2026</h1>
+<p>Planner digital personalizado da Jossandy</p>
+<div class="top-actions">
+<button onclick="toggleDark()">🌙 Modo escuro</button>
+<button onclick="toggleMusic('golden')">🎧 Golden Hour (Instrumental)</button>
+<button onclick="toggleMusic('beanie')">🎹 Chezile - Beanie (Piano Cover)</button>
+</div>
+</header>
+
+<audio id="golden" loop>
+  <source src="golden-hour.mp3" type="audio/mpeg">
+</audio>
+<audio id="beanie" loop>
+  <source src="beanie-piano.mp3" type="audio/mpeg">
+</audio>
+
+<div class="container" id="planner"></div>
+<footer>
+© 2026 • Planner rosa gold • tudo guardado automaticamente 💗
+</footer>
+
+<script>
+const months = [
+  '🌸 Janeiro','💖 Fevereiro','🌷 Março','🌼 Abril','🌿 Maio','☀️ Junho',
+  '🍓 Julho','🌺 Agosto','🍂 Setembro','🎃 Outubro','🍁 Novembro','🎄 Dezembro'
+];
+
+const daysOfWeek = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
+const planner = document.getElementById('planner');
+
+months.forEach((month, mIndex) => {
+  const monthDiv = document.createElement('div');
+  monthDiv.className = 'month';
+
+  // Coluna Objetivos
+  const colObj = document.createElement('div');
+  colObj.className = 'month-column';
+  const hObj = document.createElement('h2');
+  hObj.innerText = month;
+  colObj.appendChild(hObj);
+  const txtObj = document.createElement('textarea');
+  txtObj.placeholder = '✨ Objetivos do mês';
+  txtObj.dataset.key = `${mIndex}-obj`;
+  colObj.appendChild(txtObj);
+
+  // Coluna Prioridades
+  const colPrio = document.createElement('div');
+  colPrio.className = 'month-column';
+  const txtPrio = document.createElement('textarea');
+  txtPrio.placeholder = '📝 Prioridades';
+  txtPrio.dataset.key = `${mIndex}-prio`;
+  colPrio.appendChild(txtPrio);
+
+  // Coluna Dias
+  const colDays = document.createElement('div');
+  colDays.className = 'month-column';
+  for(let d=1; d<=31; d++){
+    const dayBox = document.createElement('textarea');
+    const dayOfWeek = daysOfWeek[(d-1)%7];
+    dayBox.placeholder = `${d} ${dayOfWeek}`;
+    dayBox.dataset.key = `${mIndex}-day-${d}`;
+    colDays.appendChild(dayBox);
+  }
+
+  monthDiv.appendChild(colObj);
+  monthDiv.appendChild(colPrio);
+  monthDiv.appendChild(colDays);
+  planner.appendChild(monthDiv);
+});
+
+// Guardar e restaurar
+document.querySelectorAll('textarea').forEach(area => {
+  const key = area.dataset.key;
+  area.value = localStorage.getItem(key) || '';
+  area.addEventListener('input', () => {
+    localStorage.setItem(key, area.value);
+  });
+});
+
+// Dark mode
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  localStorage.setItem('dark', document.body.classList.contains('dark'));
+}
+if(localStorage.getItem('dark')==='true'){
+  document.body.classList.add('dark');
+}
+
+// Música
+function toggleMusic(id){
+  const audios = ['golden','beanie'];
+  audios.forEach(a => { if(a!==id) document.getElementById(a).pause(); });
+  const player = document.getElementById(id);
+  player.paused ? player.play() : player.pause();
+}
+</script>
+</body>
+</html>
